@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Billing App</title>
+    <style>
+        /* Form Styling (Visible only on Screen, Hidden during Printing) */
+        #input-form-section {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background: #fdfdfd;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2, h3 { color: #2c3e50; margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .form-grid.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #34495e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fbfbfb;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: #fff;
+        }
+        
+        /* Items Row Container Styles */
+        .items-header {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr 1fr 1fr 1.2fr;
+            gap: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 13px;
+            color: #2c3e50;
+            text-transform: uppercase;
+        }
+        .item-row-input {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr 1fr 1fr 1.2fr;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        .item-row-input input {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #27ae60; }
+        .btn-add { background-color: #3498db; margin-top: 10px; }
+        .btn-add:hover { background-color: #2980b9; }
+        .btn-print {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #e67e22;
+            margin-top: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-print:hover { background-color: #d35400; }
+
+        /* ==================== PRINT STYLING ==================== */
+        #printable-invoice-container {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0; 
+            }
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                overflow: hidden; /* Hard-blocks generation of any accidental 2nd blank page */
+            }
+            body {
+                padding: 10mm 12mm; 
+                font-family: 'Times New Roman', Times, serif, Arial;
+                color: #000;
+                background: #fff;
+            }
+            #input-form-section {
+                display: none !important;
+            }
+            #printable-invoice-container {
+                display: flex !important;
+                flex-direction: column;
+                height: 100%;
+                justify-content: space-between;
+                box-sizing: border-box;
+            }
+            
+            .print-invoice-title {
+                text-align: center;
+                text-decoration: underline;
+                font-size: 26px;
+                font-weight: bold;
+                letter-spacing: 1px;
+                margin-bottom: 12px;
+                flex-shrink: 0;
+            }
+
+            /* Single Unified Table for the Whole Bill */
+            table.invoice-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed; 
+                flex-grow: 1; /* Instructs table to dynamically consume remaining page height */
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Enable custom flex sizing inside table elements */
+            table.invoice-table tbody {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+
+            table.invoice-table tr {
+                display: flex;
+                width: 100%;
+                flex-shrink: 0;
+            }
+
+            table.invoice-table td, table.invoice-table th {
+                border: 1px solid #000;
+                padding: 8px 10px;
+                font-size: 15.5px;
+                word-wrap: break-word;
+                vertical-align: top;
+                box-sizing: border-box;
+            }
+
+            /* Align column widths precisely with flex column calculations */
+            .col-1 { width: 7%; }
+            .col-2 { width: 11%; }
+            .col-3 { width: 38%; }
+            .col-4 { width: 11%; }
+            .col-5 { width: 9%; }
+            .col-6 { width: 11%; }
+            .col-7 { width: 13%; }
+
+            .col-span-4 { width: 67%; }
+            .col-span-3 { width: 33%; }
+            .col-span-7 { width: 100%; }
+
+            .bold { font-weight: bold; }
+            .normal { font-weight: normal !important; }
+            .center { text-align: center; }
+            .right { text-align: right; }
+            
+            /* Guarantees large digit values never fold onto multi-lines */
+            .nowrap {
+                white-space: nowrap !important;
+            }
+
+            /* Dynamic Billing Party Typography Layout */
+            .sender-title {
+                font-size: 22px; 
+                font-weight: bold; 
+                display: block;
+                margin-bottom: 4px;
+                line-height: 1.2;
+            }
+            .buyer-title {
+                font-size: 19px; 
+                font-weight: bold; 
+                display: block;
+                margin-bottom: 4px;
+                line-height: 1.2;
+            }
+            .address-block {
+                font-size: 14.5px; 
+                line-height: 1.4;
+                display: block;
+                margin-bottom: 4px;
+            }
+            .sender-gst-text {
+                font-size: 15.5px; 
+                font-weight: bold; 
+                display: block;
+            }
+            .buyer-gst-text {
+                font-size: 15.5px;
+                font-weight: normal; 
+                display: block;
+            }
+
+            /* Table Headers */
+            table.invoice-table th {
+                font-weight: bold; 
+                text-align: center;
+                vertical-align: middle;
+                font-size: 15.5px;
+            }
+
+            /* Dynamic Spacing Engine: Stretches automatically if entries are few, shrinks to fit if entries are many */
+            .dynamic-spacer-row {
+                flex-grow: 1 !important;
+                flex-shrink: 1 !important;
+                height: auto !important;
+            }
+            .dynamic-spacer-row td {
+                height: 100%;
+                border-top: none;
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1: Form Inputs (Hidden during Print) -->
+    <div id="input-form-section">
+        <h2>GST Tax Invoice Details Generator</h2>
+        
+        <h3>1. Billing Parties</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Seller Company Name (Billed By)</label>
+                <input type="text" id="seller-name" placeholder="Enter Seller Company Name">
+            </div>
+            <div class="form-group">
+                <label>Buyer Company Name (Billed To)</label>
+                <input type="text" id="buyer-name" placeholder="Enter Buyer Company Name">
+            </div>
+            <div class="form-group">
+                <label>Seller Address</label>
+                <input type="text" id="seller-address" placeholder="Enter Full Address of Seller">
+            </div>
+            <div class="form-group">
+                <label>Buyer Address</label>
+                <input type="text" id="buyer-address" placeholder="Enter Full Address of Buyer">
+            </div>
+            <div class="form-group">
+                <label>Seller GSTIN</label>
+                <input type="text" id="seller-gst" placeholder="Enter Seller 15-digit GSTIN">
+            </div>
+            <div class="form-group">
+                <label>Buyer GSTIN</label>
+                <input type="text" id="buyer-gst" placeholder="Enter Buyer 15-digit GSTIN">
+            </div>
+        </div>
+
+        <h3>2. Invoice Tracking Details</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Invoice Serial No.</label>
+                <input type="number" id="serial-no" placeholder="Enter Invoice Number">
+            </div>
+            <div class="form-group">
+                <label>Invoice Date</label>
+                <input type="date" id="invoice-date">
+            </div>
+            <div class="form-group">
+                <label>Date of Delivery of Goods</label>
+                <input type="date" id="delivery-date">
+            </div>
+            <div class="form-group">
+                <label>Delivery Challan No.</label>
+                <input type="number" id="challan-no" placeholder="Enter Challan Number">
+            </div>
+        </div>
+
+        <h3>3. Product/Item Entries</h3>
+        <div class="items-header">
+            <div>HSN Code</div>
+            <div>Description of Goods</div>
+            <div>Qty</div>
+            <div>Units</div>
+            <div>Rate per Unit (Rs.)</div>
+        </div>
+        <div id="items-container">
+            <div class="item-row-input">
+                <input type="number" placeholder="HSN Code" class="item-hsn">
+                <input type="text" placeholder="Description of Goods" class="item-desc">
+                <input type="number" placeholder="Qty" class="item-qty">
+                <input type="text" placeholder="Unit" class="item-unit">
+                <input type="number" step="0.01" placeholder="Rate" class="item-rate">
+            </div>
+        </div>
+        <button type="button" class="btn-add" onclick="addNewItemRow()">+ Add Another Item</button>
+
+        <h3>4. Financial & Taxes</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Tax Structure System</label>
+                <select id="tax-type" onchange="toggleTaxFields()">
+                    <option value="CGST/SGST">CGST & SGST (Intra-State)</option>
+                    <option value="IGST">IGST (Inter-State)</option>
+                </select>
+            </div>
+            <div class="form-group" id="cgst-sgst-inputs">
+                <label>CGST (%) & SGST (%)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="cgst-percent" placeholder="CGST %">
+                    <input type="number" id="sgst-percent" placeholder="SGST %">
+                </div>
+            </div>
+            <div class="form-group" id="igst-input" style="display:none;">
+                <label>IGST (%)</label>
+                <input type="number" id="igst-percent" placeholder="IGST %">
+            </div>
+        </div>
+
+        <h3>5. Seller Bank Specifications</h3>
+        <div class="form-grid three-col">
+            <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" id="bank-name" placeholder="Enter Bank Name">
+            </div>
+            <div class="form-group">
+                <label>Bank Account No.</label>
+                <input type="number" id="bank-account" placeholder="Enter Account Number">
+            </div>
+            <div class="form-group">
+                <label>IFSC Code</label>
+                <input type="text" id="bank-ifsc" placeholder="Enter 11-digit IFSC Code">
+            </div>
+        </div>
+
+        <button type="button" class="btn-print" onclick="generateAndPrint()">Generate & Print Invoice</button>
+    </div>
+
+    <!-- SECTION 2: Clean Printable Bill Layout (Visible only when Printing) -->
+    <div id="printable-invoice-container">
+        <div class="print-invoice-title">TAX INVOICE</div>
+        <table class="invoice-table" id="master-table">
+            <!-- Dynamic content injected here -->
+        </table>
+    </div>
+
+    <script>
+        function toggleTaxFields() {
+            const taxType = document.getElementById('tax-type').value;
+            if(taxType === 'IGST') {
+                document.getElementById('igst-input').style.display = 'block';
+                document.getElementById('cgst-sgst-inputs').style.display = 'none';
+            } else {
+                document.getElementById('igst-input').style.display = 'none';
+                document.getElementById('cgst-sgst-inputs').style.display = 'block';
+            }
+        }
+
+        function addNewItemRow() {
+            const container = document.getElementById('items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row-input';
+            newRow.innerHTML = `
+                <input type="number" placeholder="HSN Code" class="item-hsn">
+                <input type="text" placeholder="Description of Goods" class="item-desc">
+                <input type="number" placeholder="Qty" class="item-qty">
+                <input type="text" placeholder="Unit" class="item-unit">
+                <input type="number" step="0.01" placeholder="Rate" class="item-rate">
+            `;
+            container.appendChild(newRow);
+        }
+
+        function numberToWords(num) {
+            if (num === 0) return "Zero";
+            const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
+                          "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            function convertBelowThousand(n) {
+                let res = "";
+                if (n >= 100) {
+                    res += ones[Math.floor(n / 100)] + " Hundred ";
+                    n %= 100;
+                }
+                if (n >= 20) {
+                    res += tens[Math.floor(n / 10)] + " ";
+                    n %= 10;
+                }
+                if (n > 0) {
+                    res += ones[n] + " ";
+                }
+                return res;
+            }
+
+            let result = "";
+            if (num >= 100000) {
+                result += convertBelowThousand(Math.floor(num / 100000)) + "Lakh ";
+                num %= 100000;
+            }
+            if (num >= 1000) {
+                result += convertBelowThousand(Math.floor(num / 1000)) + "Thousand ";
+                num %= 1000;
+            }
+            result += convertBelowThousand(num);
+            return result.trim() + " Rupees Only";
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "";
+            const d = new Date(dateStr);
+            const rawYear = d.getFullYear().toString();
+            const year = rawYear.length > 4 ? rawYear.slice(-4) : rawYear; 
+            return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth()+1).padStart(2, '0')}-${year}`;
+        }
+
+        function generateAndPrint() {
+            const seller = {
+                name: document.getElementById('seller-name').value,
+                addr: document.getElementById('seller-address').value,
+                gst: document.getElementById('seller-gst').value
+            };
+            const buyer = {
+                name: document.getElementById('buyer-name').value,
+                addr: document.getElementById('buyer-address').value,
+                gst: document.getElementById('buyer-gst').value
+            };
+            const meta = {
+                serial: document.getElementById('serial-no').value,
+                date: formatDate(document.getElementById('invoice-date').value),
+                delivDate: formatDate(document.getElementById('delivery-date').value),
+                challan: document.getElementById('challan-no').value
+            };
+
+            const bank = {
+                name: document.getElementById('bank-name').value,
+                ac: document.getElementById('bank-account').value,
+                ifsc: document.getElementById('bank-ifsc').value
+            };
+
+            const itemRows = document.getElementsByClassName('item-row-input');
+            let items = [];
+            let totalBeforeTax = 0;
+
+            for (let i = 0; i < itemRows.length; i++) {
+                const inputs = itemRows[i].getElementsByTagName('input');
+                const hsn = inputs[0].value;
+                const desc = inputs[1].value;
+                const qty = parseInt(inputs[2].value) || 0;
+                const unit = inputs[3].value;
+                const rate = parseFloat(inputs[4].value) || 0;
+                
+                if (!desc) continue;
+
+                const amt = parseFloat((qty * rate).toFixed(2));
+                totalBeforeTax += amt;
+
+                items.push({
+                    sl: items.length + 1,
+                    hsn: hsn,
+                    desc: desc,
+                    qty: qty,
+                    unit: unit,
+                    rate: rate,
+                    amt: amt
+                });
+            }
+
+            const taxType = document.getElementById('tax-type').value;
+            let taxHTML = "";
+            let grandTotal = totalBeforeTax;
+
+            if (taxType === "IGST") {
+                const igstP = parseInt(document.getElementById('igst-percent').value) || 0;
+                const igstAmt = parseFloat((totalBeforeTax * (igstP / 100)).toFixed(2));
+                grandTotal += igstAmt;
+                
+                taxHTML = `
+                    <tr>
+                        <td class="col-1"></td>
+                        <td class="col-2"></td>
+                        <td class="bold right col-3">IGST ${igstP}%:</td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="col-6"></td>
+                        <td class="right nowrap col-7">${igstAmt.toFixed(2)}</td>
+                    </tr>
+                `;
+            } else {
+                const cgstP = parseInt(document.getElementById('cgst-percent').value) || 0;
+                const sgstP = parseInt(document.getElementById('sgst-percent').value) || 0;
+                const cgstAmt = parseFloat((totalBeforeTax * (cgstP / 100)).toFixed(2));
+                const sgstAmt = parseFloat((totalBeforeTax * (sgstP / 100)).toFixed(2));
+                grandTotal += (cgstAmt + sgstAmt);
+                
+                taxHTML = `
+                    <tr>
+                        <td class="col-1"></td>
+                        <td class="col-2"></td>
+                        <td class="bold right col-3">CGST ${cgstP}%:</td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="col-6"></td>
+                        <td class="right nowrap col-7">${cgstAmt.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td class="col-1"></td>
+                        <td class="col-2"></td>
+                        <td class="bold right col-3">SGST ${sgstP}%:</td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="col-6"></td>
+                        <td class="right nowrap col-7">${sgstAmt.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+
+            grandTotal = Math.round(grandTotal);
+            const totalWords = numberToWords(grandTotal);
+
+            // Construction of dynamic table structure using pure CSS flex classes
+            let tableHTML = `
+                <!-- Party Info Section -->
+                <tr>
+                    <td class="col-span-4">
+                        <span class="sender-title">${seller.name}</span>
+                        <span class="address-block">${seller.addr}</span>
+                        <span class="sender-gst-text">${seller.gst}</span>
+                    </td>
+                    <td class="col-span-3">
+                        <span class="normal">Serial No:</span> ${meta.serial}<br>
+                        <span class="normal">Date:</span> ${meta.date}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-span-4">
+                        <span class="buyer-title">${buyer.name}</span>
+                        <span class="address-block">${buyer.addr}</span>
+                        <span class="buyer-gst-text">${buyer.gst}</span>
+                    </td>
+                    <td class="col-span-3">
+                        <span class="normal">Date of Delivery of Goods:</span> ${meta.delivDate}<br>
+                        <span class="normal">Delivery Challan No:</span> ${meta.challan}
+                    </td>
+                </tr>
+
+                <!-- Column Headers -->
+                <tr style="background-color: #f9f9f9;">
+                    <th class="col-1">Sl No.</th>
+                    <th class="col-2">HSN</th>
+                    <th class="col-3">Description of Goods</th>
+                    <th class="col-4">Qty</th>
+                    <th class="col-5">Units</th>
+                    <th class="col-6">Rate (Rs.)</th>
+                    <th class="col-7">Amount (Rs.)</th>
+                </tr>
+            `;
+
+            // Active Item Rows
+            items.forEach(item => {
+                tableHTML += `
+                    <tr>
+                        <td class="center col-1">${item.sl}</td>
+                        <td class="center col-2">${item.hsn}</td>
+                        <td class="col-3">${item.desc}</td>
+                        <td class="center col-4">${item.qty}</td>
+                        <td class="center col-5">${item.unit}</td>
+                        <td class="right nowrap col-6">${item.rate.toFixed(2)}</td>
+                        <td class="right nowrap col-7">${item.amt.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            // Elastic CSS-driven Spacer Row: Shrinks or expands dynamically to make the document perfectly 1-page deep
+            tableHTML += `
+                <tr class="dynamic-spacer-row">
+                    <td class="col-1"></td>
+                    <td class="col-2"></td>
+                    <td class="col-3"></td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="col-6"></td>
+                    <td class="col-7"></td>
+                </tr>
+            `;
+
+            // Bank Details Section
+            tableHTML += `
+                <tr>
+                    <td class="col-1"></td>
+                    <td class="col-2"></td>
+                    <td class="col-3">
+                        <span class="bold">BANK DETAILS:</span><br>
+                        Bank Name: ${bank.name}<br>
+                        <span class="bold">A/c No:</span> ${bank.ac}<br>
+                        <span class="bold">IFSC Code:</span> ${bank.ifsc}
+                    </td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="col-6"></td>
+                    <td class="col-7"></td>
+                </tr>
+            `;
+
+            // Financial Summary Section with drawn continuous borders
+            tableHTML += `
+                <tr>
+                    <td class="col-1"></td>
+                    <td class="col-2"></td>
+                    <td class="bold right col-3">Total before Tax:</td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="col-6"></td>
+                    <td class="right bold nowrap col-7">${totalBeforeTax.toFixed(2)}</td>
+                </tr>
+                ${taxHTML}
+                <tr>
+                    <td class="col-1"></td>
+                    <td class="col-2"></td>
+                    <td class="bold right col-3">Grand Total:</td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="col-6"></td>
+                    <td class="bold right nowrap col-7">${grandTotal.toFixed(2)}</td>
+                </tr>
+                <tr>
+                    <td class="col-span-7" style="padding: 10px 12px;">
+                        <span class="bold">Total Amount in Words:</span> ${totalWords}
+                    </td>
+                </tr>
+                <!-- Stable bottom signature field -->
+                <tr>
+                    <td class="col-span-7" style="padding: 15px; height: 110px; text-align: right; vertical-align: bottom; display: flex; flex-direction: column; justify-content: flex-end;">
+                        <div>For <span class="bold">${seller.name}</span></div>
+                        <div style="margin-top: 55px;">Authorized Signatory</div>
+                    </td>
+                </tr>
+            `;
+
+            document.getElementById('master-table').innerHTML = tableHTML;
+            window.print();
+        }
+    </script>
+</body>
+</html>
