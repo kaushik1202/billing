@@ -16,7 +16,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        h2, h3 { color: #2c3e50; margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; }
+        h2, h3 { color: #2c3e50; margin-top: 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; font-weight: normal; }
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -28,7 +28,6 @@
             flex-direction: column;
         }
         .form-group label {
-            font-weight: bold;
             font-size: 13px;
             margin-bottom: 6px;
             color: #34495e;
@@ -51,17 +50,16 @@
         /* Items Row Container Styles */
         .items-header {
             display: grid;
-            grid-template-columns: 1fr 2.5fr 1fr 1fr 1.2fr;
+            grid-template-columns: 3.5fr 1fr 1fr 1.2fr;
             gap: 15px;
             margin-bottom: 5px;
-            font-weight: bold;
             font-size: 13px;
             color: #2c3e50;
             text-transform: uppercase;
         }
         .item-row-input {
             display: grid;
-            grid-template-columns: 1fr 2.5fr 1fr 1fr 1.2fr;
+            grid-template-columns: 3.5fr 1fr 1fr 1.2fr;
             gap: 15px;
             margin-bottom: 12px;
         }
@@ -79,7 +77,6 @@
             color: white;
             border: none;
             border-radius: 4px;
-            font-weight: bold;
             font-size: 14px;
             transition: background 0.2s;
         }
@@ -119,121 +116,164 @@
                 font-family: 'Times New Roman', Times, serif, Arial;
                 color: #000;
                 background: #fff;
+                font-weight: normal !important;
             }
             #input-form-section {
                 display: none !important;
             }
             #printable-invoice-container {
-                display: block !important;
+                display: flex !important;
+                flex-direction: column;
                 height: 100%;
+                justify-content: space-between;
                 box-sizing: border-box;
             }
             
             .print-invoice-title {
                 text-align: center;
-                text-decoration: underline;
-                font-size: 26px;
+                font-size: 24px; /* Bumped +2pt (was 22px) */
                 font-weight: normal;
                 letter-spacing: 1px;
                 margin-bottom: 12px;
-                height: 40px;
+                flex-shrink: 0;
             }
 
-            /* Standard Native Table Layout - Pixel-Perfect Uniform Gridlines */
+            /* Unified Standard Table with Consistent 1px Borders */
             table.invoice-table {
                 width: 100%;
-                height: calc(100% - 60px); /* Clean vertical containment */
                 border-collapse: collapse;
                 table-layout: fixed; 
-                border: 1px solid #000 !important;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid #000;
+                box-sizing: border-box;
             }
 
-            /* Every single line is exactly 1px solid black */
+            table.invoice-table tbody {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+
+            table.invoice-table tr {
+                display: flex;
+                width: 100%;
+                flex-shrink: 0;
+            }
+
             table.invoice-table td, table.invoice-table th {
-                border: 1px solid #000 !important;
-                padding: 8px 10px;
-                font-size: 15.5px;
+                border: 1px solid #000;
+                padding: 6px 8px;
+                font-size: 16px; /* Bumped +2pt (was 14px) */
                 word-wrap: break-word;
                 vertical-align: top;
                 box-sizing: border-box;
-                background-color: transparent !important;
+                font-weight: normal;
             }
 
-            .bold { font-weight: bold !important; }
+            /* Adjusted Column Widths */
+            .col-1 { width: 9%; }
+            .col-2 { width: 44%; }
+            .col-3 { width: 9%; }
+            .col-4 { width: 9%; }
+            .col-5 { width: 12%; }
+            .col-6 { width: 17%; }
+
+            .col-span-4 { width: 62%; }
+            .col-span-2 { width: 38%; }
+            .col-span-6 { width: 100%; }
+
+            /* Balanced Equal Block Sizes for Seller/Buyer */
+            .party-cell {
+                min-height: 120px;
+                box-sizing: border-box;
+            }
+
+            .seller-gst-bold { 
+                font-weight: bold !important;
+            }
             .normal { font-weight: normal !important; }
             .center { text-align: center; }
             .right { text-align: right; }
-            
-            .nowrap {
-                white-space: nowrap !important;
-            }
+            .nowrap { white-space: nowrap !important; }
 
+            /* Highest Font Size on Page reserved strictly for Seller Company Name */
             .sender-title {
-                font-size: 22px; 
-                font-weight: normal; 
+                font-size: 22px !important; /* Bumped +2pt (was 24px) */
                 display: block;
-                margin-bottom: 4px;
-                line-height: 1.2;
+                margin-bottom: 3px;
+                line-height: 1.1;
             }
             .buyer-title {
-                font-size: 19px; 
-                font-weight: normal; 
+                font-size: 19px; /* Bumped +2pt (was 17px) */
                 display: block;
-                margin-bottom: 4px;
-                line-height: 1.2;
+                margin-bottom: 3px;
             }
             .address-block {
-                font-size: 14.5px; 
-                line-height: 1.4;
+                font-size: 16px; /* Bumped +2pt (was 13.5px) */
+                line-height: 1.3;
                 display: block;
-                margin-bottom: 4px;
+                margin-bottom: 3px;
             }
-            .sender-gst-text {
-                font-size: 15.5px; 
-                font-weight: normal; 
-                display: block;
-            }
-            .buyer-gst-text {
-                font-size: 15.5px;
-                font-weight: normal; 
+            .sender-gst-text, .buyer-gst-text {
+                font-size: 16px; /* Bumped +2pt (was 14px) */
                 display: block;
             }
 
             table.invoice-table th {
-                font-weight: normal !important; 
+                font-weight: normal; 
                 text-align: center;
                 vertical-align: middle;
-                font-size: 15.5px;
+                font-size: 16.5px; /* Bumped +2pt (was 14.5px) */
+                white-space: nowrap !important;
             }
 
-            /* Native spacer row uses table layout auto-stretch mechanics */
+            /* Dynamic height calculation for full page stretch */
             .dynamic-spacer-row {
-                height: 100%;
+                flex-grow: 1 !important;
+                flex-shrink: 1 !important;
+                height: auto !important;
             }
             .dynamic-spacer-row td {
                 height: 100%;
+                border-top: none;
+                border-bottom: none;
+            }
+
+            /* Signature area alignment */
+            .signature-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-end;
+                margin-left: auto;
+                width: fit-content;
+                min-width: 240px;
+                text-align: center;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- SECTION 1: Form Inputs (Hidden during Print) -->
+    <!-- SECTION 1: Form Inputs (Receiver / Buyer Details Only) -->
     <div id="input-form-section">
-        <h2>GST Tax Invoice Details Generator</h2>
+        <h2>GST Tax Invoice Generator</h2>
         
-        <h3>1. Buyer Details (Billed To)</h3>
+        <h3>1. Bill To (Receiver Details)</h3>
         <div class="form-grid">
             <div class="form-group">
                 <label>Buyer Company Name</label>
-                <input type="text" id="buyer-name" placeholder="Enter Buyer Company Name">
+                <input type="text" id="buyer-name" placeholder="Enter Receiver/Buyer Company Name">
             </div>
             <div class="form-group">
                 <label>Buyer Address</label>
-                <input type="text" id="buyer-address" placeholder="Enter Full Address of Buyer">
+                <input type="text" id="buyer-address" placeholder="Enter Full Address of Receiver">
             </div>
             <div class="form-group">
-                <label>Buyer GSTIN</label>
+                <label>Buyer GSTIN (Optional)</label>
                 <input type="text" id="buyer-gst" placeholder="Enter Buyer 15-digit GSTIN">
             </div>
         </div>
@@ -241,7 +281,7 @@
         <h3>2. Invoice Tracking Details</h3>
         <div class="form-grid">
             <div class="form-group">
-                <label>Invoice Serial No.</label>
+                <label>Seri No.</label>
                 <input type="number" id="serial-no" placeholder="Enter Invoice Number">
             </div>
             <div class="form-group">
@@ -260,24 +300,22 @@
 
         <h3>3. Product/Item Entries</h3>
         <div class="items-header">
-            <div>HSN Code</div>
-            <div>Description of Goods</div>
-            <div>Qty</div>
-            <div>Units</div>
+            <div>Description</div>
+            <div>Qty.</div>
+            <div>Unit</div>
             <div>Rate per Unit (Rs.)</div>
         </div>
         <div id="items-container">
             <div class="item-row-input">
-                <input type="number" placeholder="HSN Code" class="item-hsn">
-                <input type="text" placeholder="Description of Goods" class="item-desc">
-                <input type="number" placeholder="Qty" class="item-qty">
+                <input type="text" placeholder="Description" class="item-desc">
+                <input type="number" placeholder="Qty." class="item-qty">
                 <input type="text" placeholder="Unit" class="item-unit">
                 <input type="number" step="0.01" placeholder="Rate" class="item-rate">
             </div>
         </div>
         <button type="button" class="btn-add" onclick="addNewItemRow()">+ Add Another Item</button>
 
-        <h3>4. Financial & Taxes</h3>
+        <h3>4. Taxes</h3>
         <div class="form-grid">
             <div class="form-group">
                 <label>Tax Structure System</label>
@@ -287,10 +325,10 @@
                 </select>
             </div>
             <div class="form-group" id="cgst-sgst-inputs">
-                <label>CGST (%) & SGST (%)</label>
+                <label>SGST (%) & CGST (%)</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="number" id="cgst-percent" placeholder="CGST %">
                     <input type="number" id="sgst-percent" placeholder="SGST %">
+                    <input type="number" id="cgst-percent" placeholder="CGST %">
                 </div>
             </div>
             <div class="form-group" id="igst-input" style="display:none;">
@@ -302,27 +340,22 @@
         <button type="button" class="btn-print" onclick="generateAndPrint()">Generate & Print Invoice</button>
     </div>
 
-    <!-- SECTION 2: Clean Printable Bill Layout (Visible only when Printing) -->
+    <!-- SECTION 2: Printable Invoice Layout -->
     <div id="printable-invoice-container">
         <div class="print-invoice-title">TAX INVOICE</div>
         <table class="invoice-table" id="master-table">
-            <!-- Colgroup forces exact columns layout across all browsers -->
-            <colgroup>
-                <col style="width: 7%;">
-                <col style="width: 11%;">
-                <col style="width: 38%;">
-                <col style="width: 11%;">
-                <col style="width: 9%;">
-                <col style="width: 11%;">
-                <col style="width: 13%;">
-            </colgroup>
-            <tbody id="master-tbody">
-                <!-- Dynamic content injected here -->
-            </tbody>
+            <!-- Dynamic content injected here -->
         </table>
     </div>
 
     <script>
+        // PERMANENT SENDER / SELLER COMPANY DETAILS
+        const SELLER_DETAILS = {
+            name: "SREE VIJAYA SAI KRISHNA ENGINEERS",
+            address: "Flat No. 108, A-Block, West Metro, Chandanagar, Rangareddy District, Hyderabad - 500050, Telangana, India",
+            gstin: "GST No: 36AAFTS3307R1ZY"
+        };
+
         function toggleTaxFields() {
             const taxType = document.getElementById('tax-type').value;
             if(taxType === 'IGST') {
@@ -339,9 +372,8 @@
             const newRow = document.createElement('div');
             newRow.className = 'item-row-input';
             newRow.innerHTML = `
-                <input type="number" placeholder="HSN Code" class="item-hsn">
-                <input type="text" placeholder="Description of Goods" class="item-desc">
-                <input type="number" placeholder="Qty" class="item-qty">
+                <input type="text" placeholder="Description" class="item-desc">
+                <input type="number" placeholder="Qty." class="item-qty">
                 <input type="text" placeholder="Unit" class="item-unit">
                 <input type="number" step="0.01" placeholder="Rate" class="item-rate">
             `;
@@ -349,7 +381,7 @@
         }
 
         function numberToWords(num) {
-            if (num === 0) return "Zero";
+            if (!num || num === 0) return "";
             const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
                           "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
             const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
@@ -388,30 +420,18 @@
             const d = new Date(dateStr);
             const rawYear = d.getFullYear().toString();
             const year = rawYear.length > 4 ? rawYear.slice(-4) : rawYear; 
-            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth()+1).padStart(2, '0')}/${year}`;
+            return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth()+1).padStart(2, '0')}-${year}`;
         }
 
         function generateAndPrint() {
-            // ====== UPDATE YOUR COMPANY DETAILS HERE ======
-            const seller = {
-                name: "YOUR COMPANY NAME LTD",
-                addr: "123, Business Park, Industrial Area, Phase-1, New Delhi - 110001",
-                gst: "07AAAAA0000A1Z5"
-            };
+            const rawBuyerGst = document.getElementById('buyer-gst').value.trim();
 
-            // ====== UPDATE YOUR BANK DETAILS HERE ======
-            const bank = {
-                name: "STATE BANK OF INDIA",
-                ac: "123456789012",
-                ifsc: "SBIN0001234"
-            };
-
-            // Capturing variable user inputs
             const buyer = {
                 name: document.getElementById('buyer-name').value,
                 addr: document.getElementById('buyer-address').value,
-                gst: document.getElementById('buyer-gst').value
+                gst: rawBuyerGst ? (rawBuyerGst.toUpperCase().startsWith('GSTIN') ? rawBuyerGst : `GSTIN: ${rawBuyerGst}`) : ""
             };
+
             const meta = {
                 serial: document.getElementById('serial-no').value,
                 date: formatDate(document.getElementById('invoice-date').value),
@@ -425,25 +445,23 @@
 
             for (let i = 0; i < itemRows.length; i++) {
                 const inputs = itemRows[i].getElementsByTagName('input');
-                const hsn = inputs[0].value;
-                const desc = inputs[1].value;
-                const qty = parseInt(inputs[2].value) || 0;
-                const unit = inputs[3].value;
-                const rate = parseFloat(inputs[4].value) || 0;
+                const desc = inputs[0].value;
+                const qty = parseInt(inputs[1].value) || 0;
+                const unit = inputs[2].value;
+                const rate = parseFloat(inputs[3].value) || 0;
                 
-                if (!desc) continue;
+                if (!desc && qty === 0 && rate === 0) continue;
 
                 const amt = parseFloat((qty * rate).toFixed(2));
                 totalBeforeTax += amt;
 
                 items.push({
                     sl: items.length + 1,
-                    hsn: hsn,
                     desc: desc,
-                    qty: qty,
+                    qty: qty || "",
                     unit: unit,
-                    rate: rate,
-                    amt: amt
+                    rate: rate ? rate.toFixed(2) : "",
+                    amt: amt ? amt.toFixed(2) : ""
                 });
             }
 
@@ -458,40 +476,38 @@
                 
                 taxHTML = `
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="right">IGST ${igstP}%:</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="right nowrap">${igstAmt.toFixed(2)}</td>
+                        <td class="col-1"></td>
+                        <td class="right col-2">IGST ${igstP ? igstP + '%' : ''}</td>
+                        <td class="col-3"></td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="right nowrap col-6">${igstAmt ? igstAmt.toFixed(2) : ''}</td>
                     </tr>
                 `;
             } else {
-                const cgstP = parseInt(document.getElementById('cgst-percent').value) || 0;
                 const sgstP = parseInt(document.getElementById('sgst-percent').value) || 0;
-                const cgstAmt = parseFloat((totalBeforeTax * (cgstP / 100)).toFixed(2));
+                const cgstP = parseInt(document.getElementById('cgst-percent').value) || 0;
                 const sgstAmt = parseFloat((totalBeforeTax * (sgstP / 100)).toFixed(2));
+                const cgstAmt = parseFloat((totalBeforeTax * (cgstP / 100)).toFixed(2));
                 grandTotal += (cgstAmt + sgstAmt);
                 
+                // SGST listed first, then CGST (without trailing colons)
                 taxHTML = `
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="right">CGST ${cgstP}%:</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="right nowrap">${cgstAmt.toFixed(2)}</td>
+                        <td class="col-1"></td>
+                        <td class="right col-2">SGST ${sgstP ? sgstP + '%' : ''}</td>
+                        <td class="col-3"></td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="right nowrap col-6">${sgstAmt ? sgstAmt.toFixed(2) : ''}</td>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td class="right">SGST ${sgstP}%:</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td class="right nowrap">${sgstAmt.toFixed(2)}</td>
+                        <td class="col-1"></td>
+                        <td class="right col-2">CGST ${cgstP ? cgstP + '%' : ''}</td>
+                        <td class="col-3"></td>
+                        <td class="col-4"></td>
+                        <td class="col-5"></td>
+                        <td class="right nowrap col-6">${cgstAmt ? cgstAmt.toFixed(2) : ''}</td>
                     </tr>
                 `;
             }
@@ -499,42 +515,40 @@
             grandTotal = Math.round(grandTotal);
             const totalWords = numberToWords(grandTotal);
 
-            // Construction of table structure utilizing standard HTML colspan attributes
             let tableHTML = `
-                <!-- Row 1: Seller Details -->
+                <!-- Party Info Section -->
                 <tr>
-                    <td colspan="4" style="font-weight: normal;">
-                        <span class="sender-title">${seller.name}</span>
-                        <span class="address-block">${seller.addr}</span>
-                        <span class="sender-gst-text">GSTIN: <span class="bold">${seller.gst}</span></span>
+                    <td class="col-span-4 party-cell">
+                        <span class="sender-title">${SELLER_DETAILS.name}</span>
+                        <span class="address-block">${SELLER_DETAILS.address}</span>
+                        <span class="sender-gst-text seller-gst-bold">${SELLER_DETAILS.gstin}</span>
                     </td>
-                    <td colspan="3" style="font-weight: normal;">
-                        <span class="normal">Serial No:</span> ${meta.serial}<br>
+                    <td class="col-span-2 party-cell">
+                        <span class="normal">Seri No.</span> ${meta.serial}<br><br><br>
                         <span class="normal">Date:</span> ${meta.date}
                     </td>
                 </tr>
-                <!-- Row 2: Buyer Details -->
                 <tr>
-                    <td colspan="4" style="font-weight: normal;">
+                    <td class="col-span-4 party-cell">
                         <span class="buyer-title">${buyer.name}</span>
                         <span class="address-block">${buyer.addr}</span>
-                        <span class="buyer-gst-text">GSTIN: ${buyer.gst}</span>
+                        <span class="buyer-gst-text">${buyer.gst}</span>
                     </td>
-                    <td colspan="3" style="font-weight: normal;">
-                        <span class="normal">Date of Delivery of Goods:</span><br>${meta.delivDate}<br><br>
+                    <td class="col-span-2 party-cell">
+                        <span class="normal">Date of Delivery of Goods:</span><br>
+                        ${meta.delivDate}<br><br>
                         <span class="normal">Delivery Challan No:</span> ${meta.challan}
                     </td>
                 </tr>
 
-                <!-- Row 3: Column Headers (Unspanned base layer) -->
-                <tr>
-                    <th>Sl No.</th>
-                    <th>HSN</th>
-                    <th>Description of Goods</th>
-                    <th>Qty</th>
-                    <th>Units</th>
-                    <th>Rate (Rs.)</th>
-                    <th>Amount (Rs.)</th>
+                <!-- Column Headers -->
+                <tr style="background-color: #f9f9f9;">
+                    <th class="col-1">Sl.No.</th>
+                    <th class="col-2">Description</th>
+                    <th class="col-3">Qty.</th>
+                    <th class="col-4">Unit</th>
+                    <th class="col-5">Rate (Rs.)</th>
+                    <th class="col-6">Amount (Rs.)</th>
                 </tr>
             `;
 
@@ -542,86 +556,64 @@
             items.forEach(item => {
                 tableHTML += `
                     <tr>
-                        <td class="center">${item.sl}</td>
-                        <td class="center">${item.hsn}</td>
-                        <td>${item.desc}</td>
-                        <td class="center">${item.qty}</td>
-                        <td class="center">${item.unit}</td>
-                        <td class="right nowrap">${item.rate.toFixed(2)}</td>
-                        <td class="right nowrap">${item.amt.toFixed(2)}</td>
+                        <td class="center col-1">${item.sl}</td>
+                        <td class="col-2">${item.desc}</td>
+                        <td class="center col-3">${item.qty}</td>
+                        <td class="center col-4">${item.unit}</td>
+                        <td class="right nowrap col-5">${item.rate}</td>
+                        <td class="right nowrap col-6">${item.amt}</td>
                     </tr>
                 `;
             });
 
-            // Native Dynamic Spacer Row stretching table height
+            // Dynamic Spacer Row: Auto-stretches empty bills to completely fill standard A4 height
             tableHTML += `
                 <tr class="dynamic-spacer-row">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td class="col-1"></td>
+                    <td class="col-2"></td>
+                    <td class="col-3"></td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="col-6"></td>
                 </tr>
             `;
 
-            // Bank Details Section
+            // Financial Summary Section (Removed colons from headers)
             tableHTML += `
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td style="font-weight: normal;">
-                        <span class="bold">BANK DETAILS:</span><br>
-                        Bank Name: ${bank.name}<br>
-                        <span class="bold">A/c No: ${bank.ac}</span><br>
-                        <span class="bold">IFSC Code: ${bank.ifsc}</span>
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            `;
-
-            // Financial Summary Section
-            tableHTML += `
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="right">Total before Tax:</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td class="right nowrap">${totalBeforeTax.toFixed(2)}</td>
+                    <td class="col-1"></td>
+                    <td class="right col-2">Total Amount</td>
+                    <td class="col-3"></td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="right nowrap col-6">${totalBeforeTax ? totalBeforeTax.toFixed(2) : ''}</td>
                 </tr>
                 ${taxHTML}
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="right">Grand Total:</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td class="right nowrap">${grandTotal.toFixed(2)}</td>
+                    <td class="col-1"></td>
+                    <td class="right col-2">GRAND TOTAL</td>
+                    <td class="col-3"></td>
+                    <td class="col-4"></td>
+                    <td class="col-5"></td>
+                    <td class="right nowrap col-6">${grandTotal ? grandTotal.toFixed(2) : ''}</td>
                 </tr>
                 <tr>
-                    <td colspan="7" style="padding: 10px 12px; font-weight: normal;">
-                        Total Amount in Words: ${totalWords}
+                    <td class="col-span-6" style="padding: 10px 12px;">
+                        Rupees : ${totalWords}
                     </td>
                 </tr>
-                <!-- Bottom signature block -->
+                <!-- Signature Block with Centered Alignment -->
                 <tr>
-                    <td colspan="7" style="padding: 15px; height: 110px; text-align: right; vertical-align: bottom; font-weight: normal;">
-                        <div style="display: inline-block; text-align: left;">
-                            <div>For ${seller.name}</div>
-                            <div style="margin-top: 55px; font-weight: bold;">Authorized Signatory</div>
+                    <td class="col-span-6" style="padding: 15px; height: 110px;">
+                        <div class="signature-container">
+                            <div>For ${SELLER_DETAILS.name}</div>
+                            <div style="margin-top: 55px;">Authorized Signatory</div>
                         </div>
                     </td>
                 </tr>
             `;
 
-            document.getElementById('master-tbody').innerHTML = tableHTML;
+            document.getElementById('master-table').innerHTML = tableHTML;
             window.print();
         }
     </script>
